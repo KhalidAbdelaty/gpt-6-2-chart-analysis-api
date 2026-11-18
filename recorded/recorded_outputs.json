@@ -1,0 +1,4646 @@
+{
+  "test_date_utc": "2026-11-18",
+  "openai_sdk": "3.55.1",
+  "png_sha256": "33c34cf6b207e1cd7b1d2438bd8ffa8611cb5d99c45c04a54f275be0af29ed60",
+  "csv_sha256": "776cd16d6e8a72dbe83acdabde4e6163b02dd273d7fe7e43744a3fdf659873a7",
+  "developer_prompt": "You write text alternatives for charts on LearnFlow course pages. Some readers use screen readers.\n\nReturn four fields:\n- alt_text: one sentence of at most 200 characters that identifies the chart: its type, subject, and time span. Do not list values in it.\n- long_description: one or two paragraphs for a reader who cannot see the chart. Cover the scales, values, relationships, and trends the chart shows, and anything a sighted reader would notice.\n- claims: every factual statement in long_description, one per item. Fill track, week, and value_percent when a claim is about one track's value in one week; otherwise set them to null.\n- uncertainties: anything you could not determine or had to estimate.\n\nRules:\n- Describe only what the chart and any data you are given show. Do not explain why the numbers changed.\n- When you read a value from the image instead of from supplied data, say it is approximate.\n- Use percentage points for the difference between two percentages.",
+  "task_text": "Write the text alternative for this chart.",
+  "schema": {
+    "$defs": {
+      "Claim": {
+        "properties": {
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          },
+          "track": {
+            "anyOf": [
+              {
+                "enum": [
+                  "Python",
+                  "SQL",
+                  "Power BI"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track"
+          },
+          "week": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Week"
+          },
+          "value_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Percent"
+          }
+        },
+        "required": [
+          "statement",
+          "track",
+          "week",
+          "value_percent"
+        ],
+        "title": "Claim",
+        "type": "object"
+      }
+    },
+    "properties": {
+      "alt_text": {
+        "title": "Alt Text",
+        "type": "string"
+      },
+      "long_description": {
+        "title": "Long Description",
+        "type": "string"
+      },
+      "claims": {
+        "items": {
+          "$ref": "#/$defs/Claim"
+        },
+        "title": "Claims",
+        "type": "array"
+      },
+      "uncertainties": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Uncertainties",
+        "type": "array"
+      }
+    },
+    "required": [
+      "alt_text",
+      "long_description",
+      "claims",
+      "uncertainties"
+    ],
+    "title": "ChartDescription",
+    "type": "object"
+  },
+  "pass_rule": "A run passes only if (1) the response completed and parsed with no refusal, (2) all 8 required facts appear in the alt text or long description, (3) it makes 0 unsupported claims, and (4) the alt text is 200 characters or fewer and names the chart type and subject. Unsupported claims are: a value off by more than 2 points, any value for SQL in week 8, treating week 8 as zero or a drop, a crossover in any week other than 11, an axis that starts anywhere but 50%, and any cause for the trends.",
+  "required_facts": {
+    "R1_identity": "Identifies a line chart of 30-day completion rates for Python, SQL, and Power BI over 12 weekly cohorts",
+    "R2_sql_rises": "SQL rises across the period",
+    "R3_sql_endpoints": "SQL starts near 58% (week 1) and ends near 81% (week 12), within 2 points",
+    "R4_crossover": "SQL first moves above Python in week 11 ('between weeks 10 and 11' also counts)",
+    "R5_week8_missing": "SQL has no value in week 8, described as missing data, not as zero or a drop",
+    "R6_axis_floor": "The vertical axis starts at 50%, not 0%",
+    "R7_python_flat": "Python stays in a narrow band (about 72% to 78%) and eases slightly at the end",
+    "R8_powerbi_declines": "Power BI drifts down, from about 66% to about 60%"
+  },
+  "tolerance_pp": 2.0,
+  "records": [
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:58:32+00:00",
+      "elapsed_s": 15.68,
+      "response_id": "resp_058226e3ee65750c016afe1179beac87d29b22c452ff40a78f",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 0,
+        "cache_write_tokens": 1495,
+        "output_tokens": 1140,
+        "reasoning_tokens": 92,
+        "cost_usd": 0.015144
+      },
+      "parsed": {
+        "alt_text": "Line chart of LearnFlow\u2019s 30-day course completion rates for Python, SQL, and Power BI across enrollment cohort weeks 1\u201312.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1\u201312. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. The lines are labeled at their right ends: Python has blue circles, SQL has orange squares, and Power BI has green triangles.\n\nPython starts at about 72% in week 1, reaches a high of about 78% across weeks 7\u20139, and ends at about 76% in week 12. SQL rises at every plotted point, from about 58% in week 1 to about 81% in week 12, with a gap at week 8. SQL starts below both other tracks, moves ahead of Power BI between weeks 4 and 5, and passes Python between weeks 10 and 11. Power BI fluctuates but trends downward, from about 66% in week 1 to about 60% in week 12. By week 12, SQL leads Python by about 5 percentage points and Power BI by about 21 percentage points.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1\u201312.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis shows the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in 5-percentage-point steps.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The lines are labeled at their right ends.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python uses blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL uses orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI uses green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at about 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python reaches its highest level across weeks 7\u20139.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is at about 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python is at about 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python is at about 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python ends at about 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL rises at every plotted point.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL starts at about 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL ends at about 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "No SQL value is plotted for week 8.",
+            "track": "SQL",
+            "week": 8,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL starts below both other tracks.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL moves ahead of Power BI between weeks 4 and 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL passes Python between weeks 10 and 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuates but trends downward overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at about 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI ends at about 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "In week 12, SQL leads Python by about 5 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "In week 12, SQL leads Power BI by about 21 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          }
+        ],
+        "uncertainties": [
+          "Completion rates are estimated from the plotted markers, and percentage-point differences are based on those estimates.",
+          "The chart does not show a SQL completion rate for week 8."
+        ]
+      },
+      "condition": "sol_image",
+      "run": 1,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": false,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at about 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is at about 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is at about 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is at about 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ends at about 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at about 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ends at about 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at about 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at about 72% in week 1, reaches a high of about 78% across weeks 7\u20139, and ends at about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python starts at about 72% in week 1, reaches a high of about 78% across weeks 7\u20139, and ends at about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python starts at about 72% in week 1, reaches a high of about 78% across weeks 7\u20139, and ends at about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but trends downward, from about 66% in week 1 to about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but trends downward, from about 66% in week 1 to about 60% in week 12."
+          }
+        ],
+        "numeric_exact": 14,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 123
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:58:48+00:00",
+      "elapsed_s": 15.24,
+      "response_id": "resp_01d5c60b20700924016afe1188381887d2983dc70f2d6433e9",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 0,
+        "cache_write_tokens": 1495,
+        "output_tokens": 1050,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.056974
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing the share of LearnFlow learners who completed Python, SQL, or Power BI within 30 days, by enrollment cohort from week 1 through week 12.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. All plotted rates below are approximate.\n\nPython (blue circles) rose from 72% in week 1 to a peak of 78% in weeks 7 through 9, then eased to 76% by week 12. SQL (orange squares) climbed from 58% in week 1 to 70% in week 7. There is a gap in the SQL line at week 8; it resumes at 74% in week 9 and rises to 81% in week 12. SQL first ranked above Power BI in week 5 and above Python in week 11. Power BI (green triangles) fluctuated downward overall, starting at 66%, peaking at 67% in week 3, and ending at 60%.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in 5-percentage-point steps.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The reported plotted rates are approximate.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Blue circles mark Python rates.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python started at approximately 72%.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rose to a plateau at its peak in weeks 7 through 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python was at approximately 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at approximately 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at approximately 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python declined after its peak.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ended at approximately 76%.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "Orange squares mark SQL rates.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL started at approximately 58%.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL rose from week 1 through week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL reached approximately 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line has a gap at week 8.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The SQL line resumes at approximately 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL rose from week 9 through week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ended at approximately 81%.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL first ranked above Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first ranked above Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Green triangles mark Power BI rates.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuated downward overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI started at approximately 66%.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaked at approximately 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI ended at approximately 60%.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "The rates are estimated from marker positions against the vertical scale.",
+          "No SQL rate is plotted for week 8."
+        ]
+      },
+      "condition": "astra_image",
+      "run": 1,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 6,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python started at approximately 72%."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at approximately 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at approximately 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at approximately 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ended at approximately 76%."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL started at approximately 58%."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL reached approximately 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "The SQL line resumes at approximately 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ended at approximately 81%."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI started at approximately 66%."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaked at approximately 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ended at approximately 60%."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from 72% in week 1 to a peak of 78% in weeks 7 through 9, then eased to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from 72% in week 1 to a peak of 78% in weeks 7 through 9, then eased to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from 72% in week 1 to a peak of 78% in weeks 7 through 9, then eased to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) climbed from 58% in week 1 to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) climbed from 58% in week 1 to 70% in week 7."
+          }
+        ],
+        "numeric_exact": 17,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 157
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:59:03+00:00",
+      "elapsed_s": 18.75,
+      "response_id": "resp_0c31f1b052d21b0c016afe1197735087d287126f7f53129db2",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 0,
+        "cache_write_tokens": 1616,
+        "output_tokens": 1578,
+        "reasoning_tokens": 122,
+        "cost_usd": 0.019826
+      },
+      "parsed": {
+        "alt_text": "Line chart of LearnFlow\u2019s 30-day course completion rates for Python, SQL, and Power BI across enrollment cohort weeks 1\u201312.",
+        "long_description": "The horizontal axis runs from enrollment cohort week 1 to week 12. The vertical axis shows the share of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point increments. The lines are labeled at their right ends: Python uses blue circles, SQL uses orange squares, and Power BI uses green triangles.\n\nPython had the highest plotted rate in weeks 1\u201310. It rose from 72% in week 1 to a peak of 78% in weeks 7\u20139, then eased to 76% in week 12. SQL increased at every plotted point, from 58% in week 1 to 70% in week 7. Its line breaks at week 8, where no value is supplied, and resumes at 74% in week 9. SQL first overtook Power BI in week 5 and Python in week 11, finishing at 81% in week 12, 5 percentage points above Python. Power BI fluctuated but trended downward, from 66% in week 1 to a peak of 67% in week 3 and a low of 60% in week 12.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1\u201312.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis shows the share of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point increments.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The lines are labeled at their right ends.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python uses blue circles.",
+            "track": "Python",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL uses orange squares.",
+            "track": "SQL",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI uses green triangles.",
+            "track": "Power BI",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python had the highest plotted completion rate in weeks 1\u201310.",
+            "track": "Python",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python\u2019s rate rose to a peak, held there for three weeks, and then eased.",
+            "track": "Python",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python\u2019s completion rate was 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python was at its peak rate of 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at its peak rate of 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at its peak rate of 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python\u2019s completion rate was 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL\u2019s rate increased at every plotted point.",
+            "track": "SQL",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL\u2019s completion rate was 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL\u2019s completion rate was 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line breaks at week 8, where no value is supplied.",
+            "track": "SQL",
+            "week": 8,
+            "value_percent": null
+          },
+          {
+            "statement": "The SQL line resumes at 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL first overtook Power BI in week 5.",
+            "track": null,
+            "week": 5,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first overtook Python in week 11.",
+            "track": null,
+            "week": 11,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL\u2019s completion rate was 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL finished 5 percentage points above Python in week 12.",
+            "track": null,
+            "week": 12,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI\u2019s completion rate fluctuated but trended downward overall.",
+            "track": "Power BI",
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI\u2019s completion rate was 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaked at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI reached its lowest rate, 60%, in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "SQL\u2019s week 8 completion rate is missing from both the chart and the supplied data."
+        ]
+      },
+      "condition": "sol_image_data",
+      "run": 1,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": false,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python\u2019s completion rate was 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at its peak rate of 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at its peak rate of 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at its peak rate of 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python\u2019s completion rate was 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL\u2019s completion rate was 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL\u2019s completion rate was 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "The SQL line resumes at 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL\u2019s completion rate was 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI\u2019s completion rate was 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaked at 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI reached its lowest rate, 60%, in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL increased at every plotted point, from 58% in week 1 to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL increased at every plotted point, from 58% in week 1 to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuated but trended downward, from 66% in week 1 to a peak of 67% in week 3 and a low of 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuated but trended downward, from 66% in week 1 to a peak of 67% in week 3 and a low of 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuated but trended downward, from 66% in week 1 to a peak of 67% in week 3 and a low of 60% in week 12."
+          }
+        ],
+        "numeric_exact": 17,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 123
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:59:22+00:00",
+      "elapsed_s": 14.54,
+      "response_id": "resp_0fd06ba8d719c106016afe11aa2c9887d2804a76c4fc11709f",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 0,
+        "cache_write_tokens": 1616,
+        "output_tokens": 989,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.055744
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing the share of LearnFlow learners who completed their course within 30 days across three tracks and 12 weekly enrollment cohorts.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the 30-day completion rate on a scale from 50% to 90%, with gridlines every 5 percentage points. Python is marked with blue circles, SQL with orange squares and Power BI with green triangles.\n\nPython starts at 72%, peaks at 78% for weeks 7 through 9 and ends at 76%. SQL rises from 58% in week 1 to 81% in week 12, moving from the lowest rate to the highest. Its line has a gap at week 8, where no value is reported. SQL first exceeds Power BI in week 5 and first exceeds Python in week 11. Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis shows the 30-day completion rate on a scale from 50% to 90%.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Horizontal gridlines are spaced 5 percentage points apart.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is marked with blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL is marked with orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI is marked with green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python reaches 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python remains at 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python remains at 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Weeks 7 through 9 form Python's peak plateau.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ends at 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL starts at 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL ends at 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL rises overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has the lowest rate in week 1.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has the highest rate in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The SQL line has a gap at week 8.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "No SQL value is reported for week 8.",
+            "track": "SQL",
+            "week": 8,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first exceeds Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first exceeds Python among the reported rates in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuates across weeks.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI declines overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI ends at 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "Power BI peaks at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          }
+        ],
+        "uncertainties": [
+          "The SQL completion rate for week 8 is not provided, so the tracks cannot be fully ranked for that week."
+        ]
+      },
+      "condition": "astra_image_data",
+      "run": 1,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": true,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": true,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 8,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python reaches 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python remains at 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python remains at 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ends at 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ends at 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at 60% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL rises from 58% in week 1 to 81% in week 12, moving from the lowest rate to the highest."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL rises from 58% in week 1 to 81% in week 12, moving from the lowest rate to the highest."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          }
+        ],
+        "numeric_exact": 15,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 148
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:59:36+00:00",
+      "elapsed_s": 22.68,
+      "response_id": "resp_0ff363dd9bbc8ad7016afe11b8e42487d2ba856dd939b271d5",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1495,
+        "cache_write_tokens": 0,
+        "output_tokens": 1897,
+        "reasoning_tokens": 36,
+        "cost_usd": 0.019126
+      },
+      "parsed": {
+        "alt_text": "Line chart of 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI enrollment cohorts in weeks 1\u201312.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1\u201312. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point increments. Python (blue circles) starts highest, rises, levels off in weeks 7\u20139, and then dips. Its approximate rates from week 1 through week 12 are 72%, 74%, 75%, 76%, 77%, 77%, 78%, 78%, 78%, 77%, 77%, and 76%.\n\nSQL (orange squares) rises at every plotted point. Its approximate rates in weeks 1\u20137 are 58%, 60%, 62%, 64%, 66%, 68%, and 70%. The line breaks at week 8, where no value is plotted, then resumes at approximately 74%, 76%, 79%, and 81% in weeks 9\u201312. Power BI (green triangles) fluctuates but ends below where it started. Its approximate rates from week 1 through week 12 are 66%, 65%, 67%, 66%, 64%, 65%, 63%, 62%, 63%, 61%, 62%, and 60%. SQL first plots above Power BI in week 5 and above Python in week 11. By week 12, SQL leads Python by about 5 percentage points and Power BI by about 21 percentage points.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1\u201312.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis ranges from 50% to 90% in 5-percentage-point increments.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is shown with blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts with the highest completion rate.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python rises, levels off in weeks 7\u20139, and then dips.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is approximately 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python is approximately 74% in week 2.",
+            "track": "Python",
+            "week": 2,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "Python is approximately 75% in week 3.",
+            "track": "Python",
+            "week": 3,
+            "value_percent": 75.0
+          },
+          {
+            "statement": "Python is approximately 76% in week 4.",
+            "track": "Python",
+            "week": 4,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "Python is approximately 77% in week 5.",
+            "track": "Python",
+            "week": 5,
+            "value_percent": 77.0
+          },
+          {
+            "statement": "Python is approximately 77% in week 6.",
+            "track": "Python",
+            "week": 6,
+            "value_percent": 77.0
+          },
+          {
+            "statement": "Python is approximately 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python is approximately 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python is approximately 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python is approximately 77% in week 10.",
+            "track": "Python",
+            "week": 10,
+            "value_percent": 77.0
+          },
+          {
+            "statement": "Python is approximately 77% in week 11.",
+            "track": "Python",
+            "week": 11,
+            "value_percent": 77.0
+          },
+          {
+            "statement": "Python is approximately 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL is shown with orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL rises at every plotted point.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL is approximately 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL is approximately 60% in week 2.",
+            "track": "SQL",
+            "week": 2,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "SQL is approximately 62% in week 3.",
+            "track": "SQL",
+            "week": 3,
+            "value_percent": 62.0
+          },
+          {
+            "statement": "SQL is approximately 64% in week 4.",
+            "track": "SQL",
+            "week": 4,
+            "value_percent": 64.0
+          },
+          {
+            "statement": "SQL is approximately 66% in week 5.",
+            "track": "SQL",
+            "week": 5,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "SQL is approximately 68% in week 6.",
+            "track": "SQL",
+            "week": 6,
+            "value_percent": 68.0
+          },
+          {
+            "statement": "SQL is approximately 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line breaks at week 8, where no value is plotted.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at approximately 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL is approximately 76% in week 10.",
+            "track": "SQL",
+            "week": 10,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL is approximately 79% in week 11.",
+            "track": "SQL",
+            "week": 11,
+            "value_percent": 79.0
+          },
+          {
+            "statement": "SQL is approximately 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "Power BI is shown with green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuates but ends below where it started.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI is approximately 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI is approximately 65% in week 2.",
+            "track": "Power BI",
+            "week": 2,
+            "value_percent": 65.0
+          },
+          {
+            "statement": "Power BI is approximately 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI is approximately 66% in week 4.",
+            "track": "Power BI",
+            "week": 4,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI is approximately 64% in week 5.",
+            "track": "Power BI",
+            "week": 5,
+            "value_percent": 64.0
+          },
+          {
+            "statement": "Power BI is approximately 65% in week 6.",
+            "track": "Power BI",
+            "week": 6,
+            "value_percent": 65.0
+          },
+          {
+            "statement": "Power BI is approximately 63% in week 7.",
+            "track": "Power BI",
+            "week": 7,
+            "value_percent": 63.0
+          },
+          {
+            "statement": "Power BI is approximately 62% in week 8.",
+            "track": "Power BI",
+            "week": 8,
+            "value_percent": 62.0
+          },
+          {
+            "statement": "Power BI is approximately 63% in week 9.",
+            "track": "Power BI",
+            "week": 9,
+            "value_percent": 63.0
+          },
+          {
+            "statement": "Power BI is approximately 61% in week 10.",
+            "track": "Power BI",
+            "week": 10,
+            "value_percent": 61.0
+          },
+          {
+            "statement": "Power BI is approximately 62% in week 11.",
+            "track": "Power BI",
+            "week": 11,
+            "value_percent": 62.0
+          },
+          {
+            "statement": "Power BI is approximately 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "SQL first plots above Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first plots above Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "In week 12, SQL leads Python by about 5 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "In week 12, SQL leads Power BI by about 21 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          }
+        ],
+        "uncertainties": [
+          "Completion rates are estimated from marker positions in the image, and the percentage-point gaps are calculated from those estimates.",
+          "The SQL completion rate for week 8 cannot be determined because no value is plotted."
+        ]
+      },
+      "condition": "sol_image",
+      "run": 2,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": false
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python is approximately 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 2,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "Python is approximately 74% in week 2."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 3,
+            "value": 75.0,
+            "verdict": "exact",
+            "text": "Python is approximately 75% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 4,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python is approximately 76% in week 4."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 5,
+            "value": 77.0,
+            "verdict": "exact",
+            "text": "Python is approximately 77% in week 5."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 6,
+            "value": 77.0,
+            "verdict": "exact",
+            "text": "Python is approximately 77% in week 6."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is approximately 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is approximately 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python is approximately 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 10,
+            "value": 77.0,
+            "verdict": "exact",
+            "text": "Python is approximately 77% in week 10."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 11,
+            "value": 77.0,
+            "verdict": "exact",
+            "text": "Python is approximately 77% in week 11."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python is approximately 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 2,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 60% in week 2."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 3,
+            "value": 62.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 62% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 4,
+            "value": 64.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 64% in week 4."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 5,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 66% in week 5."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 6,
+            "value": 68.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 68% in week 6."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at approximately 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 10,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 76% in week 10."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 11,
+            "value": 79.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 79% in week 11."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL is approximately 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 2,
+            "value": 65.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 65% in week 2."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 4,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 66% in week 4."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 5,
+            "value": 64.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 64% in week 5."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 6,
+            "value": 65.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 65% in week 6."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 7,
+            "value": 63.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 63% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 8,
+            "value": 62.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 62% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 9,
+            "value": 63.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 63% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 10,
+            "value": 61.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 61% in week 10."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 11,
+            "value": 62.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 62% in week 11."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI is approximately 60% in week 12."
+          }
+        ],
+        "numeric_exact": 35,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 120
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "usable with edits: lists all 36 weekly values in prose, which is hard to follow by ear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T20:59:59+00:00",
+      "elapsed_s": 15.53,
+      "response_id": "resp_07c21c2c5ae6e70e016afe11cf6f2887d2a1ee9ec162582b1b",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1495,
+        "cache_write_tokens": 0,
+        "output_tokens": 1093,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.044342
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI enrollment cohorts from week 1 through week 12.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. The rates below are approximate readings from the chart.\n\nPython (blue circles) starts at about 72% in week 1, rises to a plateau of about 78% in weeks 7 through 9, and eases to about 76% in week 12. SQL (orange squares) climbs from about 58% in week 1 to about 70% in week 7. The SQL line has a gap at week 8, resumes at about 74% in week 9, and continues upward to about 81% in week 12. SQL moves above Power BI between weeks 4 and 5 and above Python between weeks 10 and 11, going from the lowest rate at the start to the highest at the end. Power BI (green triangles) fluctuates but trends downward, starting at about 66% in week 1, peaking at about 67% in week 3, and ending at about 60% in week 12.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in 5-percentage-point steps.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The reported rates are approximate readings from the chart.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Blue circles mark the Python line.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at about 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rises to a plateau of about 78% in weeks 7 through 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python declines after its plateau.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ends at about 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "Orange squares mark the SQL line.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL starts at about 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL climbs from week 1 through week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL reaches about 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line has a gap at week 8.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at about 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL continues upward from week 9 through week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ends at about 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL moves above Power BI between weeks 4 and 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL moves above Python between weeks 10 and 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has the lowest rate at the start.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has the highest rate at the end.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Green triangles mark the Power BI line.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuates but trends downward overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at about 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaks at about 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI ends at about 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "Completion rates are estimated from marker positions against the vertical scale.",
+          "No SQL rate is shown for week 8."
+        ]
+      },
+      "condition": "astra_image",
+      "run": 2,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 6,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at about 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ends at about 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at about 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL reaches about 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at about 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ends at about 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at about 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at about 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at about 72% in week 1, rises to a plateau of about 78% in weeks 7 through 9, and eases to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at about 72% in week 1, rises to a plateau of about 78% in weeks 7 through 9, and eases to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at about 72% in week 1, rises to a plateau of about 78% in weeks 7 through 9, and eases to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) climbs from about 58% in week 1 to about 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) climbs from about 58% in week 1 to about 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuates but trends downward, starting at about 66% in week 1, peaking at about 67% in week 3, and ending at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuates but trends downward, starting at about 66% in week 1, peaking at about 67% in week 3, and ending at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuates but trends downward, starting at about 66% in week 1, peaking at about 67% in week 3, and ending at about 60% in week 12."
+          }
+        ],
+        "numeric_exact": 17,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 141
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:00:14+00:00",
+      "elapsed_s": 17.28,
+      "response_id": "resp_012f8916bb995cb6016afe11def46487d2b3c3e34b6d144b52",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1616,
+        "cache_write_tokens": 0,
+        "output_tokens": 1454,
+        "reasoning_tokens": 142,
+        "cost_usd": 0.014708
+      },
+      "parsed": {
+        "alt_text": "Line chart of 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI enrollment cohorts in weeks 1\u201312.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. The lines are labeled at their right ends: Python uses blue circles, SQL uses orange squares, and Power BI uses green triangles.\n\nPython starts at 72% in week 1, reaches a peak of 78% in weeks 7\u20139, and slips to 76% by week 12. SQL starts lowest at 58%, rises to 70% in week 7, and has a gap in week 8, when no value is supplied. It resumes at 74% in week 9 and climbs to 81% in week 12. SQL first exceeds Power BI in week 5 and first exceeds Python in week 11, ending 5 percentage points above Python. Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3. It finishes lowest of the three tracks.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis runs from 50% to 90% in 5-percentage-point steps.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The lines are labeled at their right ends.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is shown with blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL is shown with orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI is shown with green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rises to a peak of 78% and holds it from week 7 through week 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python slips to 76% by week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL starts at 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL has the lowest completion rate in week 1.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL rises to 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line has a gap in week 8 because no value is supplied.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL climbs to 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL first exceeds Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first exceeds Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ends 5 percentage points above Python in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuates but declines overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI ends at 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "Power BI peaks at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI finishes lowest of the three tracks.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          }
+        ],
+        "uncertainties": [
+          "No SQL completion rate is shown or supplied for week 8, so it is unknown how SQL ranked that week."
+        ]
+      },
+      "condition": "sol_image_data",
+      "run": 2,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 6,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python slips to 76% by week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL rises to 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL climbs to 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at 60% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, reaches a peak of 78% in weeks 7\u20139, and slips to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, reaches a peak of 78% in weeks 7\u20139, and slips to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, reaches a peak of 78% in weeks 7\u20139, and slips to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 58.0,
+            "verdict": "wrong",
+            "text": "SQL starts lowest at 58%, rises to 70% in week 7, and has a gap in week 8, when no value is supplied."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 8,
+            "value": 70.0,
+            "verdict": "invented_missing",
+            "text": "SQL starts lowest at 58%, rises to 70% in week 7, and has a gap in week 8, when no value is supplied."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          }
+        ],
+        "numeric_exact": 15,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 2,
+        "unsupported_flags": [
+          {
+            "type": "wrong",
+            "text": "SQL starts lowest at 58%, rises to 70% in week 7, and has a gap in week 8, when no value is supplied."
+          },
+          {
+            "type": "invented_missing",
+            "text": "SQL starts lowest at 58%, rises to 70% in week 7, and has a gap in week 8, when no value is supplied."
+          }
+        ],
+        "alt_text_chars": 120
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": "Checker paired '58%' with 'week 7' and '70%' with 'week 8' in one sentence; the sentence itself is correct.",
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:00:32+00:00",
+      "elapsed_s": 15.28,
+      "response_id": "resp_050d35bb8e84c875016afe11f077e087d2852f0b95a5d83065",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1616,
+        "cache_write_tokens": 0,
+        "output_tokens": 1057,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.04295
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI enrollment cohorts from week 1 through week 12.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in steps of 5 percentage points. Python (blue circles) starts at 72% in week 1, peaks at 78% in weeks 7 through 9, and ends at 76% in week 12.\n\nSQL (orange squares) starts lowest, at 58% in week 1, and rises to 70% in week 7. A gap in the SQL line marks week 8, for which no value is supplied. SQL resumes at 74% in week 9 and ends highest, at 81% in week 12. It first surpasses Power BI in week 5 and Python in week 11. Power BI (green triangles) starts at 66% in week 1 and peaks at 67% in week 3. Its rate fluctuates but trends downward, ending at 60% in week 12.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in steps of 5 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Blue circles mark the Python series.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python reaches its peak of 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python remains at its peak of 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python remains at its peak of 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python ends at 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "Orange squares mark the SQL series.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL starts at 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL is the lowest of the three tracks in week 1.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL rises from week 1 through week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL reaches 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line has a gap at week 8, for which no value is supplied.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL ends at 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL is the highest of the three tracks in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first surpasses Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Week 11 is the first plotted week in which SQL surpasses Python.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Green triangles mark the Power BI series.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaks at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI fluctuates from week to week.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI trends downward overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI ends at 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "The SQL completion rate for week 8 is missing and has not been estimated."
+        ]
+      },
+      "condition": "astra_image_data",
+      "run": 2,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": true,
+          "R4_crossover": false,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": false
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python reaches its peak of 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python remains at its peak of 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python remains at its peak of 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ends at 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL reaches 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ends at 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at 72% in week 1, peaks at 78% in weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at 72% in week 1, peaks at 78% in weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) starts at 72% in week 1, peaks at 78% in weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) starts lowest, at 58% in week 1, and rises to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) starts lowest, at 58% in week 1, and rises to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at 74% in week 9 and ends highest, at 81% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL resumes at 74% in week 9 and ends highest, at 81% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) starts at 66% in week 1 and peaks at 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) starts at 66% in week 1 and peaks at 67% in week 3."
+          }
+        ],
+        "numeric_exact": 21,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 141
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:00:47+00:00",
+      "elapsed_s": 15.58,
+      "response_id": "resp_0cc8bb7d8296d4ab016afe11ff87b887d2bf53d3edb797488f",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1495,
+        "cache_write_tokens": 0,
+        "output_tokens": 1293,
+        "reasoning_tokens": 107,
+        "cost_usd": 0.013085
+      },
+      "parsed": {
+        "alt_text": "Line chart of 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI enrollment cohorts from week 1 through week 12.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the share of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point increments. Python is shown with blue circles, SQL with orange squares, and Power BI with green triangles.\n\nPython rose from about 72% in week 1 to about 78% in week 7, held there through week 9, and slipped to about 76% by week 12. SQL rose at every plotted point, from about 58% in week 1 to about 70% in week 7. Its line breaks at week 8, where no value is shown, and resumes at about 74% in week 9. SQL was below Power BI in week 4 but above it in week 5, and below Python in week 10 but above it in week 11. SQL finished highest at about 81% in week 12, about 5 percentage points ahead of Python. Power BI fluctuated but declined overall, starting at about 66%, peaking at about 67% in week 3, and finishing lowest at about 60%.",
+        "claims": [
+          {
+            "statement": "The horizontal axis spans enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the share of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in 5-percentage-point increments.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is shown with blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL is shown with orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI is shown with green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python was about 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rose from week 1 to week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python reached about 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python held steady from week 7 through week 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python declined from week 9 to week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ended at about 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL rose at every plotted point.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL was about 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL was about 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line breaks at week 8, where no value is shown.",
+            "track": "SQL",
+            "week": 8,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at about 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL was below Power BI in week 4.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL was above Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL was below Python in week 10.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL was above Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL had the highest completion rate in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL was about 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL finished about 5 percentage points ahead of Python.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuated but declined overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI started at about 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaked at about 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI had the lowest completion rate in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI finished at about 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "Plotted completion rates and the final percentage-point gap are approximate because they were read from the image.",
+          "SQL\u2019s week 8 completion rate cannot be determined from the chart because no point is plotted."
+        ]
+      },
+      "condition": "sol_image",
+      "run": 3,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": false,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python was about 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python reached about 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ended at about 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL was about 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL was about 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at about 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL was about 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI started at about 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaked at about 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI finished at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL rose at every plotted point, from about 58% in week 1 to about 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL rose at every plotted point, from about 58% in week 1 to about 70% in week 7."
+          }
+        ],
+        "numeric_exact": 12,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 134
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": false,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:01:03+00:00",
+      "elapsed_s": 14.21,
+      "response_id": "resp_05f218f4ced5e353016afe120f2c0087d298a73139b0a904ed",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1498,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1495,
+        "cache_write_tokens": 0,
+        "output_tokens": 1127,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.045702
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing the share of LearnFlow learners who completed their course within 30 days across enrollment cohorts from weeks 1 through 12, by course track.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the 30-day completion rate from 50% to 90%, with gridlines every 5 percentage points. Python (blue circles) rose from about 72% in week 1 to a plateau of about 78% in weeks 7 through 9, then eased to about 76% in week 12.\n\nSQL (orange squares) rose from about 58% in week 1 to about 70% in week 7. Its line has a gap at week 8 and resumes at about 74% in week 9, then climbs to about 81% in week 12. SQL first surpassed Power BI in week 5 and Python in week 11, moving from the lowest track at the start to the highest at the end. Power BI (green triangles) fluctuated but declined overall, starting at about 66% in week 1, peaking at about 67% in week 3 and ending at about 60% in week 12.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis shows the 30-day completion rate from 50% to 90%.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Horizontal gridlines are spaced 5 percentage points apart.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python is shown with blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python started at about 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rose to a plateau spanning weeks 7 through 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python was at about 78% in week 7.",
+            "track": "Python",
+            "week": 7,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at about 78% in week 8.",
+            "track": "Python",
+            "week": 8,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python was at about 78% in week 9.",
+            "track": "Python",
+            "week": 9,
+            "value_percent": 78.0
+          },
+          {
+            "statement": "Python declined after the plateau.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ended at about 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL is shown with orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL started at about 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL rose from week 1 through week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL reached about 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line has a gap at week 8.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumed at about 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL climbed from week 9 through week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ended at about 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL first surpassed Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first surpassed Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ranked lowest at the start.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ranked highest at the end.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI is shown with green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI fluctuated across the cohorts.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI declined overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI started at about 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaked at about 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI ended at about 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "The plotted rates are approximate because they were read from marker positions rather than supplied as data.",
+          "No SQL rate is shown for week 8."
+        ]
+      },
+      "condition": "astra_image",
+      "run": 3,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": true,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 7,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python started at about 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at about 78% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 8,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at about 78% in week 8."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 9,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python was at about 78% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ended at about 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL started at about 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL reached about 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumed at about 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ended at about 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI started at about 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaked at about 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ended at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from about 72% in week 1 to a plateau of about 78% in weeks 7 through 9, then eased to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from about 72% in week 1 to a plateau of about 78% in weeks 7 through 9, then eased to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python (blue circles) rose from about 72% in week 1 to a plateau of about 78% in weeks 7 through 9, then eased to about 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) rose from about 58% in week 1 to about 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL (orange squares) rose from about 58% in week 1 to about 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuated but declined overall, starting at about 66% in week 1, peaking at about 67% in week 3 and ending at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuated but declined overall, starting at about 66% in week 1, peaking at about 67% in week 3 and ending at about 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI (green triangles) fluctuated but declined overall, starting at about 66% in week 1, peaking at about 67% in week 3 and ending at about 60% in week 12."
+          }
+        ],
+        "numeric_exact": 20,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 162
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-sol",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:01:17+00:00",
+      "elapsed_s": 15.72,
+      "response_id": "resp_0bd198d4b016a2bf016afe121d570c87d290dfcb3e24e69397",
+      "returned_model": "gpt-6.2-sol",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1616,
+        "cache_write_tokens": 0,
+        "output_tokens": 1332,
+        "reasoning_tokens": 211,
+        "cost_usd": 0.013488
+      },
+      "parsed": {
+        "alt_text": "Line chart of 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI tracks across enrollment cohort weeks 1\u201312.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. The lines are labeled at their right ends: Python uses blue circles, SQL uses orange squares, and Power BI uses green triangles.\n\nPython starts highest at 72% in week 1, rises to 78% in weeks 7\u20139, then slips to 76% by week 12. SQL starts lowest at 58% in week 1 and rises at every plotted point, overtaking Power BI in week 5 and Python in week 11. SQL has no value for week 8, so its line breaks between week 7 (70%) and week 9 (74%). SQL finishes highest at 81% in week 12, 5 percentage points above Python. Power BI starts at 66%, peaks at 67% in week 3, then fluctuates downward, finishing lowest at 60% in week 12.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis measures the percentage of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis runs from 50% to 90% in 5-percentage-point steps.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The lines are labeled at their right ends.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python uses blue circles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL uses orange squares.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI uses green triangles.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts highest at 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rises to a plateau of 78% in weeks 7\u20139.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python slips to 76% by week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "SQL starts lowest at 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL rises at every plotted point.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL overtakes Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL overtakes Python in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has no value for week 8.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The SQL line breaks between weeks 7 and 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL is at 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "SQL is at 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL finishes highest at 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL finishes 5 percentage points above Python in week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI peaks at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "Power BI fluctuates downward after its week 3 peak.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI finishes lowest at 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          }
+        ],
+        "uncertainties": [
+          "SQL\u2019s week 8 completion rate cannot be determined because it is missing from both the chart and the source data."
+        ]
+      },
+      "condition": "sol_image_data",
+      "run": 3,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": false,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 5,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts highest at 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python slips to 76% by week 12."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts lowest at 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL is at 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL is at 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL finishes highest at 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at 67% in week 3."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI finishes lowest at 60% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts highest at 72% in week 1, rises to 78% in weeks 7\u20139, then slips to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python starts highest at 72% in week 1, rises to 78% in weeks 7\u20139, then slips to 76% by week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python starts highest at 72% in week 1, rises to 78% in weeks 7\u20139, then slips to 76% by week 12."
+          }
+        ],
+        "numeric_exact": 12,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [],
+        "alt_text_chars": 130
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": null,
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    },
+    {
+      "model": "gpt-6.2-astra",
+      "with_data": true,
+      "store": false,
+      "reasoning_effort": "medium",
+      "detail": "high",
+      "started_utc": "2026-11-18T21:01:32+00:00",
+      "elapsed_s": 12.65,
+      "response_id": "resp_02f2bda6f30ce1c8016afe122d27dc87d29b7957567139fb22",
+      "returned_model": "gpt-6.2-astra",
+      "service_tier": "default",
+      "status": "completed",
+      "incomplete_reason": null,
+      "refusal": null,
+      "usage": {
+        "input_tokens": 1619,
+        "ordinary_input_tokens": 3,
+        "cached_tokens": 1616,
+        "cache_write_tokens": 0,
+        "output_tokens": 896,
+        "reasoning_tokens": 0,
+        "cost_usd": 0.03651
+      },
+      "parsed": {
+        "alt_text": "Line chart comparing 30-day course completion rates for LearnFlow\u2019s Python, SQL, and Power BI tracks across enrollment cohort weeks 1 through 12.",
+        "long_description": "The horizontal axis shows enrollment cohort weeks 1 through 12. The vertical axis shows the share of each cohort that completed its course within 30 days, from 50% to 90% in steps of 5 percentage points. SQL starts lowest at 58% in week 1 and rises to 70% in week 7. Its line breaks at week 8 because no value is shown. It resumes at 74% in week 9 and climbs to 81% in week 12, the highest final rate.\n\nPython starts at 72% in week 1, rises to a peak of 78% that it holds from weeks 7 through 9, and ends at 76% in week 12. Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3. SQL first exceeds Power BI in week 5 and Python in week 11.",
+        "claims": [
+          {
+            "statement": "The horizontal axis shows enrollment cohort weeks 1 through 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical axis shows the share of each cohort that completed its course within 30 days.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "The vertical scale runs from 50% to 90% in steps of 5 percentage points.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL has the lowest starting rate.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL starts at 58% in week 1.",
+            "track": "SQL",
+            "week": 1,
+            "value_percent": 58.0
+          },
+          {
+            "statement": "SQL rises from week 1 through week 7.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL reaches 70% in week 7.",
+            "track": "SQL",
+            "week": 7,
+            "value_percent": 70.0
+          },
+          {
+            "statement": "The SQL line breaks at week 8 because no value is shown.",
+            "track": "SQL",
+            "week": 8,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL resumes at 74% in week 9.",
+            "track": "SQL",
+            "week": 9,
+            "value_percent": 74.0
+          },
+          {
+            "statement": "SQL climbs from week 9 through week 12.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL ends at 81% in week 12.",
+            "track": "SQL",
+            "week": 12,
+            "value_percent": 81.0
+          },
+          {
+            "statement": "SQL has the highest final rate.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python starts at 72% in week 1.",
+            "track": "Python",
+            "week": 1,
+            "value_percent": 72.0
+          },
+          {
+            "statement": "Python rises to a peak of 78% that it holds from weeks 7 through 9.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Python ends at 76% in week 12.",
+            "track": "Python",
+            "week": 12,
+            "value_percent": 76.0
+          },
+          {
+            "statement": "Power BI fluctuates but declines overall.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "Power BI starts at 66% in week 1.",
+            "track": "Power BI",
+            "week": 1,
+            "value_percent": 66.0
+          },
+          {
+            "statement": "Power BI ends at 60% in week 12.",
+            "track": "Power BI",
+            "week": 12,
+            "value_percent": 60.0
+          },
+          {
+            "statement": "Power BI peaks at 67% in week 3.",
+            "track": "Power BI",
+            "week": 3,
+            "value_percent": 67.0
+          },
+          {
+            "statement": "SQL first exceeds Power BI in week 5.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          },
+          {
+            "statement": "SQL first exceeds Python among the reported rates in week 11.",
+            "track": null,
+            "week": null,
+            "value_percent": null
+          }
+        ],
+        "uncertainties": [
+          "The SQL completion rate for week 8 is not provided."
+        ]
+      },
+      "condition": "astra_image_data",
+      "run": 3,
+      "auto_score": {
+        "parsed": true,
+        "required_facts": {
+          "R1_identity": true,
+          "R2_sql_rises": true,
+          "R3_sql_endpoints": false,
+          "R4_crossover": true,
+          "R5_week8_missing": true,
+          "R6_axis_floor": false,
+          "R7_python_flat": true,
+          "R8_powerbi_declines": true
+        },
+        "required_captured": 6,
+        "numeric_checks": [
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts at 58% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL reaches 70% in week 7."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 9,
+            "value": 74.0,
+            "verdict": "exact",
+            "text": "SQL resumes at 74% in week 9."
+          },
+          {
+            "source": "claims",
+            "track": "SQL",
+            "week": 12,
+            "value": 81.0,
+            "verdict": "exact",
+            "text": "SQL ends at 81% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python ends at 76% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI starts at 66% in week 1."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI ends at 60% in week 12."
+          },
+          {
+            "source": "claims",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI peaks at 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 1,
+            "value": 58.0,
+            "verdict": "exact",
+            "text": "SQL starts lowest at 58% in week 1 and rises to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "SQL",
+            "week": 7,
+            "value": 70.0,
+            "verdict": "exact",
+            "text": "SQL starts lowest at 58% in week 1 and rises to 70% in week 7."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 1,
+            "value": 72.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, rises to a peak of 78% that it holds from weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 7,
+            "value": 78.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, rises to a peak of 78% that it holds from weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Python",
+            "week": 12,
+            "value": 76.0,
+            "verdict": "exact",
+            "text": "Python starts at 72% in week 1, rises to a peak of 78% that it holds from weeks 7 through 9, and ends at 76% in week 12."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 1,
+            "value": 66.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 12,
+            "value": 60.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          },
+          {
+            "source": "long_description",
+            "track": "Power BI",
+            "week": 3,
+            "value": 67.0,
+            "verdict": "exact",
+            "text": "Power BI fluctuates but declines overall, from 66% in week 1 to 60% in week 12, with a peak of 67% in week 3."
+          }
+        ],
+        "numeric_exact": 17,
+        "numeric_within_tolerance": 0,
+        "numeric_wrong": 0,
+        "unsupported_flags": [
+          {
+            "type": "causal",
+            "text": "Its line breaks at week 8 because no value is shown."
+          }
+        ],
+        "alt_text_chars": 145
+      },
+      "review": {
+        "required_facts_captured": 8,
+        "required_facts_missed": [],
+        "unsupported_claims": 0,
+        "checker_flags_overruled": "Checker read 'breaks at week 8 because no value is shown' as a causal claim; it describes the chart, not a cause.",
+        "alt_text_ok": true,
+        "readability": "clear",
+        "axis_effect_explained": false,
+        "passes": true
+      }
+    }
+  ],
+  "review_method": "Python checked every claim with a track, week, and value against the CSV and flagged patterns for the 8 required facts. I read all 12 outputs in full against the frozen rubric; the reviewed verdict is the one reported.",
+  "reviewed_description": {
+    "source": "sol_image run 1 (first passing run in request order, cheapest condition)",
+    "alt_text": "Line chart of LearnFlow's 30-day course completion rates for Python, SQL, and Power BI across enrollment cohort weeks 1 to 12.",
+    "long_description": "The horizontal axis shows enrollment cohort weeks 1 to 12. The vertical axis shows the percentage of each cohort that completed its course within 30 days, from 50% to 90% in 5-percentage-point steps. Because the axis starts at 50%, the gaps between the lines look larger than they would on an axis that starts at 0%. Each line is labeled at its right end: Python has blue circles, SQL has orange squares, and Power BI has green triangles.\n\nPython starts at 72% in week 1, reaches a high of 78% across weeks 7 to 9, and ends at 76% in week 12. SQL rises at every plotted point, from 58% in week 1 to 81% in week 12, a gain of 23 percentage points. There is no SQL value for week 8, so the SQL line has a gap there; the missing week is not a zero. SQL starts below both other tracks, moves ahead of Power BI between weeks 4 and 5, and passes Python between weeks 10 and 11. Power BI fluctuates but trends downward, from 66% in week 1 to 60% in week 12. By week 12, SQL leads Python by 5 percentage points and Power BI by 21 percentage points.",
+    "edits": [
+      "Removed 'about' before values after checking every number against the CSV.",
+      "Added the sentence on the 50% axis floor, which no run explained.",
+      "Added 'a gain of 23 percentage points' and 'the missing week is not a zero'.",
+      "Replaced the en dash ranges with 'to'."
+    ]
+  }
+}
