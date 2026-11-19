@@ -22,6 +22,7 @@ PNG_PATH = ROOT / "learnflow_chart.png"
 
 # Frozen fixture fingerprints. describe.py refuses to run if either changes.
 PNG_SHA256 = "33c34cf6b207e1cd7b1d2438bd8ffa8611cb5d99c45c04a54f275be0af29ed60"
+CSV_SHA256 = "776cd16d6e8a72dbe83acdabde4e6163b02dd273d7fe7e43744a3fdf659873a7"
 Y_AXIS_FLOOR = 50  # matches Y_MIN in build_chart.py
 
 # A value read from the image counts as correct within 2 percentage points.
@@ -54,6 +55,11 @@ PASS_RULE = (
 
 def file_sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def csv_sha256(path: Path = CSV_PATH) -> str:
+    # Normalize CRLF to LF so Windows checkouts match the frozen CSV hash.
+    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def load_data(path: Path = CSV_PATH) -> pd.DataFrame:
@@ -267,6 +273,7 @@ def score_run(df: pd.DataFrame, parsed: dict | None) -> dict:
 if __name__ == "__main__":
     data = load_data()
     print("PNG hash matches:", file_sha256(PNG_PATH) == PNG_SHA256)
+    print("CSV hash matches:", csv_sha256(CSV_PATH) == CSV_SHA256)
     for key, value in reference_facts(data).items():
         print(f"{key}: {value}")
     print("\nPass rule:", PASS_RULE)

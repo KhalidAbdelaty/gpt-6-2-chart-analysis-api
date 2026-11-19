@@ -1,0 +1,6 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+recorded/live_outputs.json
+reviewed_page.html

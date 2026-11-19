@@ -2144,7 +2144,7 @@
         "unsupported_claims": 0,
         "checker_flags_overruled": null,
         "alt_text_ok": true,
-        "readability": "usable with edits: lists all 36 weekly values in prose, which is hard to follow by ear",
+        "readability": "usable with edits: lists all 35 available data points in prose, which is hard to follow by ear",
         "axis_effect_explained": false,
         "passes": true
       }

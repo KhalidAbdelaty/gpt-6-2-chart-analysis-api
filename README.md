@@ -31,9 +31,9 @@ streamlit run app_streamlit.py
 Run the experiment yourself (12 requests, about $0.40 at Standard rates). Put `OPENAI_API_KEY=...` in a `.env` file first and keep that file out of version control.
 
 ```bash
-python checker.py        # prints the reference facts and the pass rule
-python describe.py       # overwrites recorded/recorded_outputs.json (back up the recorded run first)
+python checker.py        # verifies PNG and CSV hashes and prints the reference facts and pass rule
+python describe.py       # writes new runs to recorded/live_outputs.json without overwriting recorded_outputs.json
 python publish_page.py   # writes reviewed_page.html
 ```
 
-The review fields and `reviewed_description` in the recorded file were added by hand after reading all 12 outputs. `python build_chart.py` rebuilds the PNG. `describe.py` refuses to run if the image hash changes.
+The review fields and `reviewed_description` in `recorded/recorded_outputs.json` were added by hand after reading all 12 outputs. `python build_chart.py` rebuilds the PNG. `describe.py` refuses to run if either the PNG or CSV hash changes.

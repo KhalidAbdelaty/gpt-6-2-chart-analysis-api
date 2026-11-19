@@ -1,7 +1,7 @@
 """One function, one schema, one prompt: describe the LearnFlow chart with GPT-6.2.
 
 Usage:
-    python describe.py            # 4 conditions x 3 runs, writes recorded/recorded_outputs.json
+    python describe.py            # 4 conditions x 3 runs, writes recorded/live_outputs.json
     python describe.py --runs 1   # one run per condition
 
 The only thing that changes between conditions is the model ID and whether the
@@ -25,7 +25,7 @@ from pydantic import BaseModel
 import checker
 
 ROOT = Path(__file__).parent
-OUT_PATH = ROOT / "recorded" / "recorded_outputs.json"
+OUT_PATH = ROOT / "recorded" / "live_outputs.json"
 
 # Standard short-context rates per 1M tokens, checked on the pricing page on November 18, 2026.
 # Cache writes use the 30-minute rate. Reasoning tokens are billed as output.
@@ -163,6 +163,10 @@ def describe_chart(client: OpenAI, model: str, source_csv: str | None = None) ->
 
 
 def run_experiment(runs: int) -> dict:
+    if checker.file_sha256(checker.PNG_PATH) != checker.PNG_SHA256:
+        raise SystemExit("learnflow_chart.png changed since the rubric was frozen. Rebuild or restore it.")
+    if checker.csv_sha256(checker.CSV_PATH) != checker.CSV_SHA256:
+        raise SystemExit("learnflow_completion.csv changed since the rubric was frozen. Restore it before running.")
     client = make_client()
     df = checker.load_data()
     csv_text = checker.CSV_PATH.read_text()
@@ -179,7 +183,7 @@ def run_experiment(runs: int) -> dict:
         "test_date_utc": datetime.now(timezone.utc).date().isoformat(),
         "openai_sdk": openai.__version__,
         "png_sha256": checker.PNG_SHA256,
-        "csv_sha256": checker.file_sha256(checker.CSV_PATH),
+        "csv_sha256": checker.csv_sha256(checker.CSV_PATH),
         "developer_prompt": DEVELOPER_PROMPT,
         "task_text": TASK_TEXT,
         "schema": ChartDescription.model_json_schema(),
@@ -193,8 +197,9 @@ def run_experiment(runs: int) -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=int, default=3)
+    parser.add_argument("--out", type=Path, default=OUT_PATH)
     args = parser.parse_args()
     results = run_experiment(args.runs)
-    OUT_PATH.parent.mkdir(exist_ok=True)
-    OUT_PATH.write_text(json.dumps(results, indent=2))
-    print(f"saved {OUT_PATH}")
+    args.out.parent.mkdir(exist_ok=True)
+    args.out.write_text(json.dumps(results, indent=2))
+    print(f"saved {args.out}")
